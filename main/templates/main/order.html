@@ -1,0 +1,47 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="order-form-container">
+    <h2 class="form-title">Оформить заказ</h2>
+    <p>Пожалуйста, заполните форму ниже, чтобы заказать ваш букет.</p>
+
+    {% if order_bouquets %}
+        <div class="order-bouquet-cards">
+            {% for bouquet in order_bouquets %}
+                <div class="order-bouquet-card">
+                    <div class="order-bouquet-image-wrapper">
+                        <img src="{{ bouquet.image.url }}" alt="Букет {{ bouquet.title }}" class="order-bouquet-image">
+                    </div>
+                    <div class="order-bouquet-details">
+                        <h5 class="order-bouquet-title">{{ bouquet.title }}</h5>
+                        <p class="order-bouquet-price">{{ bouquet.price }} руб.</p>
+                        <form method="post" action="{% url 'update_order_quantity' bouquet.id %}" class="order-quantity-form">
+                            {% csrf_token %}
+                            <label for="quantity-{{ bouquet.id }}">Количество:</label>
+                            <input type="number" id="quantity-{{ bouquet.id }}" name="quantity" value="{{ bouquet.quantity }}" min="1" class="order-quantity-input" onchange="this.form.submit()">
+                        </form>                        
+                        <form method="post" action="{% url 'remove_from_order' bouquet.id %}" class="order-remove-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-remove">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <p><strong>Общая стоимость:</strong> {{ total_price }} руб.</p>
+
+        <form method="post" class="order-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="submit-button">Заказать</button>
+        </form>
+    {% else %}
+        <p>Ваш заказ пуст. Выберите букеты на <a href="{% url 'bouquets' %}">Главной</a> странице.</p>
+    {% endif %}
+
+    {% if error %}
+        <p class="error-message">{{ error }}</p>
+    {% endif %}
+</div>
+
+{% endblock %}

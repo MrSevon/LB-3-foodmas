@@ -1,0 +1,68 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="main-container">
+    <div class="filter-panel">
+        <h3 class="filter-title">Подбор по параметрам</h3>
+
+        <form method="get" id="filter-form">
+            <div class="price-slider-container">
+                <h4>Цена (РУБ)</h4>
+                <div class="slider-values d-flex justify-content-between mb-2">
+                    <input type="number" id="price-min-input" class="price-input" 
+                           name="price_min" min="{{ min_price }}" max="{{ max_price }}"
+                           value="{{ request.GET.price_min|default:min_price }}">
+                    <input type="number" id="price-max-input" class="price-input" 
+                           name="price_max" min="{{ min_price }}" max="{{ max_price }}"
+                           value="{{ request.GET.price_max|default:max_price }}">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="slider-min" min="{{ min_price }}" max="{{ max_price }}"
+                           value="{{ request.GET.price_min|default:min_price }}">
+                    <input type="range" id="slider-max" min="{{ min_price }}" max="{{ max_price }}"
+                           value="{{ request.GET.price_max|default:max_price }}">
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Категории:</h4>
+                {% for category in categories %}
+                <label>
+                    <input type="checkbox" name="category" value="{{ category.name }}"
+                        {% if category.name in selected_categories %}checked{% endif %}>
+                    {{ category.name }}
+                </label>
+                {% endfor %}
+            </div>
+
+            <input type="hidden" name="price_min" id="hidden-price-min" value="{{ request.GET.price_min|default:min_price }}">
+            <input type="hidden" name="price_max" id="hidden-price-max" value="{{ request.GET.price_max|default:max_price }}">
+        </form>
+    </div>
+
+    <div class="bouquets-container">
+        <h2 class="text-center mb-4">Наши букеты</h2>
+        <div class="bouquets-grid" id="bouquets-grid">
+            {% for bouquet in bouquets %}
+            <div class="bouquet-card show">
+                <img src="{{ bouquet.image.url }}" alt="Букет {{ bouquet.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ bouquet.title }}</h5>
+                    <p class="card-text">{{ bouquet.price }} руб.</p>
+                    <form method="post" action="{% url 'add_to_order' bouquet.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Добавить в заказ</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center">Нет букетов, подходящих под выбранные параметры.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'main/js/filters.js' %}"></script>
+{% endblock %}
+a
